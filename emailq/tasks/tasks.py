@@ -16,7 +16,7 @@ mailer = Mailer(
 
 
 @task()
-def sendmail(to, sender=None, subject=None, body=None):
+def sendmail(to, subject=None, body=None):
     """
     Sendmail Task
     
@@ -24,14 +24,13 @@ def sendmail(to, sender=None, subject=None, body=None):
 
     args:
       to: email address to send to
-      sender: email address of sender - defaults to configured email address
       subject: subject line of email
       body: body text of email
     """
 
     message = Message(
         to=to,
-        sender=sender,
+        sender=config.get('email', 'user'),
         subject=subject,
         body=body
     )
