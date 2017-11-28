@@ -1,5 +1,6 @@
 from celery.task import task
 from celery.utils.mail import Message, Mailer
+from celery.exceptions import MaxRetriesExceededError
 from ConfigParser import ConfigParser
 import logging
 
