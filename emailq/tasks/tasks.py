@@ -35,8 +35,9 @@ def sendmail(to, subject=None, body=None):
         subject=subject,
         body=body
     )
-    try:
-        mailer.send(message)
-    except Exception as e:
-        self.retry(countdown=5, exc=e, max_retries=3)
+    #try:
+    #    mailer.send(message)
+    #except Exception as e:
+    #    self.retry(countdown=5, exc=e, max_retries=3)
+    mailer.send(message)
     return True
