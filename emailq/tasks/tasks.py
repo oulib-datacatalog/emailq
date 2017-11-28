@@ -39,7 +39,6 @@ def sendmail(self, to, subject=None, body=None):
         body=body
     )
     try:
-        raise Exception('testing')
         logging.info("Sending email to: {0}".format(to))
         mailer.send(message)
     except MaxRetriesExceededError as e:
