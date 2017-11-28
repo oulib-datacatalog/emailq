@@ -16,7 +16,7 @@ mailer = Mailer(
 )
 
 
-@task(bind=True)
+@task()
 def sendmail(to, subject=None, body=None):
     """
     Sendmail Task
