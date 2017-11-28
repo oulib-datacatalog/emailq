@@ -1,10 +1,12 @@
 from celery.task import task
 from celery.utils.mail import Message, Mailer
 from ConfigParser import ConfigParser
- 
+import logging
 
 config = ConfigParser()
 config.read('cybercom.cfg')
+
+logging.basicConfig(level=logging.INFO)
 
 mailer = Mailer(
     host=config.get('email', 'host'),
@@ -37,7 +39,9 @@ def sendmail(self, to, subject=None, body=None):
     )
     try:
         raise Exception('testing')
+        logging.info("Sending email to: {0}".format(to))
         mailer.send(message)
     except Exception as e:
-        self.retry(countdown=5, exc=e, max_retries=3)
+        logging.error("Error sending email: {0}".format(e))
+        self.retry(countdown=5, max_retries=3)
     return True
