@@ -11,11 +11,12 @@ mailer = Mailer(
     port=config.getint('email', 'port'),
     user=config.get('email', 'user'),
     password=config.get('email', 'pass'),
-    use_tls=config.getboolean('email', 'use_tls')
+    use_tls=config.getboolean('email', 'use_tls'),
+    timeout=20
 )
 
 
-@task()
+@task(bind=True)
 def sendmail(to, subject=None, body=None):
     """
     Sendmail Task
@@ -34,5 +35,8 @@ def sendmail(to, subject=None, body=None):
         subject=subject,
         body=body
     )
-    mailer.send(message)
+    try:
+        mailer.send(message)
+    except Exception as e:
+        self.retry(countdown=5, exc=e, max_retries=3)
     return True
