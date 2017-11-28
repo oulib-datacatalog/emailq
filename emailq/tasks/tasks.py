@@ -41,7 +41,9 @@ def sendmail(self, to, subject=None, body=None):
         raise Exception('testing')
         logging.info("Sending email to: {0}".format(to))
         mailer.send(message)
+    except MaxRetriesExceededError as e:
+        return {"error": e}
     except Exception as e:
         logging.error("Error sending email: {0}".format(e))
-        self.retry(countdown=5, max_retries=3)
+        self.retry(countdown=10, max_retries=3)
     return True
