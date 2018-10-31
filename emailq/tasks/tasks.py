@@ -27,7 +27,7 @@ def sendmail(self, to, subject=None, body=None, attachment=None):
     Sends an email.
 
     args:
-      to: email address to send to
+      to: email address[es] to send to separated by comma
       subject: subject line of email
       body: body text of email
       attachment: [filename as string, data as base64 encoded value]
@@ -54,7 +54,7 @@ def sendmail(self, to, subject=None, body=None, attachment=None):
         server.starttls()  # Do not send credentials over the network in the clear!
         server.ehlo()
         server.login(user, password)
-        server.sendmail(user, [to], msg.as_string())
+        server.sendmail(user, to.split(","), msg.as_string())
         server.close()
     except MaxRetriesExceededError as e:
         return {"error": e}
