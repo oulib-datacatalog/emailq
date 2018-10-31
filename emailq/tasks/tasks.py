@@ -1,5 +1,8 @@
 from celery.task import task
-from celery.utils.mail import Message, Mailer
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
 from celery.exceptions import MaxRetriesExceededError
 from ConfigParser import ConfigParser
 import logging
@@ -9,18 +12,15 @@ config.read('cybercom.cfg')
 
 logging.basicConfig(level=logging.INFO)
 
-mailer = Mailer(
-    host=config.get('email', 'host'),
-    port=config.getint('email', 'port'),
-    user=config.get('email', 'user'),
-    password=config.get('email', 'pass'),
-    use_tls=config.getboolean('email', 'use_tls'),
-    timeout=20
-)
+host = config.get('email', 'host')
+port = config.getint('email', 'port')
+user = config.get('email', 'user')
+password = config.get('email', 'pass')
+timeout = 20
 
 
 @task(bind=True)
-def sendmail(self, to, subject=None, body=None):
+def sendmail(self, to, subject=None, body=None, attachment=None):
     """
     Sendmail Task
     
@@ -30,17 +30,32 @@ def sendmail(self, to, subject=None, body=None):
       to: email address to send to
       subject: subject line of email
       body: body text of email
+      attachment: [filename as string, data as base64 encoded value]
+
     """
 
-    message = Message(
-        to=to,
-        sender=config.get('email', 'user'),
-        subject=subject,
-        body=body
-    )
+    msg = MIMEMultipart()
+    msg['Subject'] = subject
+    msg['From'] = "Lib.CC-1@ou.edu"
+    msg['To'] = to
+    msg.attach(MIMEText(body))
+
+    if attachment is not None:
+        filename, data = attachment
+        attachfile = MIMEBase('text', 'plain')
+        attachfile.set_payload(data)
+        attachfile.add_header('Content-Transfer-Encoding', 'base64')
+        attachfile['Content-Disposition'] = 'attachment; filename="{0}"'.format(filename)
+        msg.attach(attachfile)
+
     try:
         logging.info("Sending email to: {0}".format(to))
-        mailer.send(message)
+        server = smtplib.SMTP(host, port, timeout=timeout)
+        server.starttls()  # Do not send credentials over the network in the clear!
+        server.ehlo()
+        server.login(user, password)
+        server.sendmail(user, [to], msg.as_string())
+        server.close()
     except MaxRetriesExceededError as e:
         return {"error": e}
     except Exception as e:
