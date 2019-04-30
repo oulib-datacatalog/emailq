@@ -38,7 +38,7 @@ def sendmail(self, to, subject=None, body=None, attachment=None):
     msg['Subject'] = subject
     msg['From'] = "Lib.CC-1@ou.edu"
     msg['To'] = to
-    msg.attach(MIMEText(body))
+    msg.attach(MIMEText(body, 'plain', 'utf-8'))
 
     if attachment is not None:
         filename, data = attachment
