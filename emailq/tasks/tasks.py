@@ -5,6 +5,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from celery.exceptions import MaxRetriesExceededError
 from os import environ
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 host = environ.get('EMAIL_HOST')
 port = environ.get('EMAIL_PORT')
