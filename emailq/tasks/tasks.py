@@ -4,21 +4,12 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from celery.exceptions import MaxRetriesExceededError
-try:
-    from ConfigParser import ConfigParser
-except ImportError:
-    from configparser import ConfigParser
-import logging
+from os import environ
 
-config = ConfigParser()
-config.read('cybercom.cfg')
-
-logging.basicConfig(level=logging.INFO)
-
-host = config.get('email', 'host')
-port = config.getint('email', 'port')
-user = config.get('email', 'user')
-password = config.get('email', 'pass')
+host = environ.get('EMAIL_HOST')
+port = environ.get('EMAIL_PORT')
+user = environ.get('EMAIL_HOST_USER')
+password = environ.get('EMAIL_HOST_PASSWORD')
 timeout = 20
 
 
