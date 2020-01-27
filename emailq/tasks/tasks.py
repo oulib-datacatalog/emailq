@@ -1,13 +1,13 @@
 from celery.task import task
+from celery.utils.log import get_task_logger
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from celery.exceptions import MaxRetriesExceededError
 from os import environ
-import logging
 
-logging.basicConfig(level=logging.INFO)
+logger = get_task_logger(__name__)
 
 host = environ.get('EMAIL_HOST')
 port = environ.get('EMAIL_PORT')
@@ -46,7 +46,7 @@ def sendmail(self, to, subject=None, body=None, attachment=None):
         msg.attach(attachfile)
 
     try:
-        logging.info("Sending email to: {0}".format(to))
+        logger.info("Sending email to: {0}".format(to))
         server = smtplib.SMTP(host, port, timeout=timeout)
         server.starttls()  # Do not send credentials over the network in the clear!
         server.ehlo()
@@ -56,6 +56,6 @@ def sendmail(self, to, subject=None, body=None, attachment=None):
     except MaxRetriesExceededError as e:
         return {"error": e}
     except Exception as e:
-        logging.error("Error sending email: {0}".format(e))
+        logger.error("Error sending email: {0}".format(e))
         self.retry(countdown=10, max_retries=3)
     return True
