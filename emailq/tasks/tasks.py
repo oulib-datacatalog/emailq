@@ -12,6 +12,7 @@ logging.basicConfig(level=logging.INFO)
 host = environ.get('EMAIL_HOST')
 port = environ.get('EMAIL_PORT')
 user = environ.get('EMAIL_HOST_USER')
+from_addr = environ.get("EMAIL_FROM_ADDR")
 password = environ.get('EMAIL_HOST_PASSWORD')
 timeout = 20
 
@@ -33,7 +34,6 @@ def sendmail(self, to, subject=None, body=None, attachment=None):
 
     msg = MIMEMultipart()
     msg['Subject'] = subject
-    msg['From'] = "Lib.CC-1@ou.edu"
     msg['To'] = to
     msg.attach(MIMEText(body, 'plain', 'utf-8'))
 
@@ -46,12 +46,12 @@ def sendmail(self, to, subject=None, body=None, attachment=None):
         msg.attach(attachfile)
 
     try:
-        logging.info("Sending email to: {0}".format(to))
+        logging.info("Sending email as {0} to: {1}".format(from_addr, to))
         server = smtplib.SMTP(host, port, timeout=timeout)
         server.starttls()  # Do not send credentials over the network in the clear!
         server.ehlo()
         server.login(user, password)
-        server.sendmail(user, to.split(","), msg.as_string())
+        server.sendmail(from_addr, to.split(","), msg.as_string())
         server.close()
     except MaxRetriesExceededError as e:
         return {"error": e}
