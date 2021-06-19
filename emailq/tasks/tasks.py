@@ -1,11 +1,20 @@
-from celery.task import task
+import logging
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
-from celery.exceptions import MaxRetriesExceededError
 from os import environ
-import logging
+from celery import Celery
+from celery.exceptions import MaxRetriesExceededError
+
+try:
+    import celeryconfig
+except ImportError:
+    logging.error("Failed to import celeryconfig")
+    celeryconfig = None
+
+app = Celery()
+app.config_from_object(celeryconfig)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -17,7 +26,7 @@ password = environ.get('EMAIL_HOST_PASSWORD')
 timeout = 20
 
 
-@task(bind=True)
+@app.task(bind=True)
 def sendmail(self, to, subject=None, body=None, attachment=None):
     """
     Sendmail Task

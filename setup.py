@@ -2,6 +2,6 @@
 #ez_setup.use_setuptools()
 from setuptools import setup, find_packages
 setup(name='emailq',
-      version='0.4',
+      version='0.5',
       packages= find_packages(),
 )
